@@ -74,7 +74,7 @@ if [ -n "$PROMPT_FILE" ]; then
 fi
 
 [ -n "$PROMPT" ] || usage
-command -v codex >/dev/null 2>&1 || die "codex not found in PATH — install the Codex CLI first"
+command -v codex >/dev/null 2>&1 || die "codex not found in PATH. Install the Codex CLI first"
 
 for ref in ${REFS+"${REFS[@]}"}; do
   [ -f "$ref" ] || die "reference image does not exist: $ref"
@@ -116,7 +116,7 @@ trap cleanup EXIT
 
 # Naming the destination is what makes this work headlessly.
 # Without a named destination, Codex's imagegen skill treats the request as
-# preview-only and "renders it inline" — which does not exist outside the TUI.
+# preview-only and "renders it inline", which does not exist outside the TUI.
 # The run then exits 0 with an empty final message and no file anywhere.
 REF_BLOCK=""
 if [ ${#REFS[@]} -gt 0 ]; then
@@ -144,13 +144,13 @@ codex "${CODEX_ARGS[@]}" "$FULL_PROMPT" >"$LOG" 2>&1
 CODEX_EXIT=$?
 set -e
 
-# The file on disk is the source of truth — not the model's answer.
+# The file on disk is the source of truth, not the model's answer.
 # Codex exits 0 even when it generated no image at all.
 if [ ! -s "$OUT" ]; then
   {
     printf 'error: Codex finished (exit %s) but no image appeared at:\n  %s\n\n' "$CODEX_EXIT" "$OUT"
     printf "Codex's final message:\n"
-    if [ -s "$MSG_FILE" ]; then sed 's/^/  /' "$MSG_FILE"; else printf '  (empty — the classic symptom of a generation treated as preview)\n'; fi
+    if [ -s "$MSG_FILE" ]; then sed 's/^/  /' "$MSG_FILE"; else printf '  (empty: the classic symptom of a generation treated as preview)\n'; fi
     printf '\nfull log: %s\n' "$LOG"
   } >&2
   KEEP_LOG=1

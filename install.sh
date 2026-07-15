@@ -12,7 +12,7 @@ DEST="$DEST_DIR/imagegen"
 info() { printf '  %s\n' "$*"; }
 warn() { printf 'warning: %s\n' "$*" >&2; }
 
-[ -d "$SRC" ] || { printf 'error: %s not found — run this from a full clone of the repo\n' "$SRC" >&2; exit 1; }
+[ -d "$SRC" ] || { printf 'error: %s not found. Run this from a full clone of the repo\n' "$SRC" >&2; exit 1; }
 
 mkdir -p "$DEST_DIR"
 

@@ -1,13 +1,13 @@
 ---
 name: imagegen
-description: Generate images (photos, illustrations, mockups, textures, game assets, logos, hero images, social cards, quote cards) by delegating to the Codex CLI, which runs its built-in image_gen tool and saves a PNG to disk. Use whenever the user asks to generate, create, draw, or make an image, illustration, photo, mockup, banner, hero, cover, texture, sprite, or raster asset — and whenever another task needs a bitmap that does not exist yet. Do not use for editing existing SVG/vector assets, for diagrams that are better built in HTML/CSS/SVG, or when the user wants code instead of a bitmap.
+description: Generate images (photos, illustrations, mockups, textures, game assets, logos, hero images, social cards, quote cards) by delegating to the Codex CLI, which runs its built-in image_gen tool and saves a PNG to disk. Use whenever the user asks to generate, create, draw, or make an image, illustration, photo, mockup, banner, hero, cover, texture, sprite, or raster asset, and whenever another task needs a bitmap that does not exist yet. Do not use for editing existing SVG/vector assets, for diagrams that are better built in HTML/CSS/SVG, or when the user wants code instead of a bitmap.
 ---
 
 # Image generation via Codex
 
 Claude Code cannot generate images. This skill borrows the Codex CLI's built-in
-`image_gen` tool, which runs on your ChatGPT account — **no `OPENAI_API_KEY`, no
-per-image API billing**.
+`image_gen` tool, which runs on your ChatGPT account. **No `OPENAI_API_KEY`, no
+per-image API billing.**
 
 ## Before generating: understand the request
 
@@ -17,30 +17,30 @@ thin request into a rich one.
 
 **Ask when a missing answer would visibly change the image:**
 
-- **Purpose** — where will it be used? (landing hero, Instagram post, game sprite, blog
+- **Purpose.** Where will it be used? (landing hero, Instagram post, game sprite, blog
   cover) This drives format, polish and framing more than anything else.
-- **Style/medium** — photo, flat illustration, 3D render, watercolor, editorial?
-- **Text in the image** — is there any? What are the *exact* words?
-- **Format** — square, landscape, portrait, a specific size?
-- **Constraints** — brand colors, things to avoid, no people, no text?
+- **Style/medium.** Photo, flat illustration, 3D render, watercolor, editorial?
+- **Text in the image.** Is there any? What are the *exact* words?
+- **Format.** Square, landscape, portrait, a specific size?
+- **Constraints.** Brand colors, things to avoid, no people, no text?
 
 Use `AskUserQuestion` with **at most 2-3 questions**, each offering concrete options
 (and a recommended one first). Then generate.
 
 **Do NOT ask when:**
 
-- The user already wrote a detailed prompt — respect it, normalize it, don't interrogate.
-- They're clearly exploring ("just show me something", "surprise me") — generate and
+- The user already wrote a detailed prompt. Respect it, normalize it, don't interrogate.
+- They're clearly exploring ("just show me something", "surprise me"). Generate and
   iterate from the result. A picture beats a questionnaire.
-- The answer is obvious from context — you're building their landing page, so a hero for
+- The answer is obvious from context. You're building their landing page, so a hero for
   *that* page inherits *that* project's style and format.
 
-When in doubt, ask **one** sharp question rather than three shallow ones — or generate a
+When in doubt, ask **one** sharp question rather than three shallow ones. Or generate a
 first pass and let the image itself drive the conversation.
 
 ## Usage
 
-Always in the background — each image takes **1-2 minutes**.
+Always in the background. Each image takes **1-2 minutes**.
 
 ```bash
 ~/.claude/skills/imagegen/scripts/codex-image.sh \
@@ -67,7 +67,7 @@ Other options: `--ref <file>` (reference image, repeatable), `--model`, `--log`,
 ## Rules
 
 - **Run in the background** (`run_in_background: true`). Never in the foreground.
-- **One image per call.** For several, fire calls in parallel — don't ask for multiple
+- **One image per call.** For several, fire calls in parallel. Don't ask for multiple
   images in a single prompt.
 - **Always `Read` the generated file** before saying it's done. The script guarantees the
   file exists and is a raster; only the Read guarantees the image is *right*.
@@ -83,14 +83,14 @@ Other options: `--ref <file>` (reference image, repeatable), `--model`, `--log`,
 The underlying model (`gpt-image-2`) is **very capable**: it handles long detailed specs,
 renders legible text inside the image, respects format and composition, and follows
 negative constraints. **Don't skimp on the prompt.** A vague prompt yields a generic
-image — the waste is asking for too little, not too much.
+image. The waste is asking for too little, not too much.
 
 A user prompt that is already detailed should be **preserved and normalized**, never
 summarized nor inflated with creativity nobody asked for.
 
 ### What to include
 
-- **Intended use** ("landing page hero", "game sprite", "ebook cover") — sets polish,
+- **Intended use** ("landing page hero", "game sprite", "ebook cover"). Sets polish,
   framing and format.
 - **Style/medium** ("product photography", "flat illustration", "stylized 3D render",
   "watercolor", "35mm editorial photo").
@@ -103,7 +103,7 @@ summarized nor inflated with creativity nobody asked for.
 
 ### Format and aspect ratio
 
-Ask for it in the prompt — **it works**. Observed: a request framed as "product photo"
+Ask for it in the prompt. **It works.** Observed: a request framed as "product photo"
 came back 1536×1024 landscape on its own, while illustrations with no format specified
 came back square. A prompt asking for "3:4 (1080x1350)" returned exactly 1080×1350.
 
@@ -111,7 +111,7 @@ Say "landscape 16:9", "portrait 2:3", "square", "4K landscape". Sizes `gpt-image
 handles well: `1024x1024`, `1536x1024`, `1024x1536`, `2048x2048`, `2048x1152`,
 `3840x2160` (4K landscape), `2160x3840` (4K portrait).
 
-It is not a pixel-exact contract — **confirm the dimensions in the Read** if they matter.
+It is not a pixel-exact contract. **Confirm the dimensions in the Read** if they matter.
 
 ### Text inside the image
 
@@ -129,7 +129,7 @@ Still, be precise:
   accents exactly as written") and call out specific cases.
 - **Spell out** proper nouns, brands, or invented words letter by letter.
 - **Always check the text in the Read.** Text is the most fragile part and the easiest
-  to miss — the longer the copy, the higher the risk.
+  to miss. The longer the copy, the higher the risk.
 
 ### Optional schema
 
@@ -165,7 +165,7 @@ pass it with `--ref` and describe only the difference.
 - **Transparent background** is not direct: the built-in tool exposes no alpha. The path
   is to generate on a flat chroma-key (`#00ff00`) and remove it with
   `~/.codex/skills/.system/imagegen/scripts/remove_chroma_key.py`. True native
-  transparency would need the fallback CLI with `OPENAI_API_KEY` — ask first.
+  transparency would need the fallback CLI with `OPENAI_API_KEY`. Ask first.
 - **Editing a local image** through the built-in tool is limited. `--ref` is for
   reference; pixel-faithful editing wants the fallback CLI.
 - **Aspect ratio** is honored when asked for, but is **not a pixel-exact guarantee**:
