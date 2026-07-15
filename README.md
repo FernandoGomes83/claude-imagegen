@@ -110,12 +110,11 @@ The skill also installs through the [skills.sh](https://www.skills.sh) CLI, whic
 across several agents:
 
 ```bash
-npx skills add FernandoGomes83/claude-imagegen --copy
+npx skills add FernandoGomes83/claude-imagegen
 ```
 
-Pass `--copy`, otherwise it symlinks the skill into your agent directory and your install
-stays tied to wherever the CLI put the clone. Update with `npx skills update`, remove with
-`npx skills remove`.
+It copies the skill into your agent's skills directory and pins it in a
+`skills-lock.json`. Update with `npx skills update`, remove with `npx skills remove`.
 
 For Claude Code specifically, prefer the plugin above: it is the native path and it gets
 you versioning, updates, and uninstall for free.

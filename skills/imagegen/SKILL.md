@@ -42,8 +42,19 @@ first pass and let the image itself drive the conversation.
 
 Always in the background. Each image takes **1-2 minutes**.
 
+The generator lives beside this file, at `scripts/codex-image.sh`. Where that lands
+depends on how the skill was installed, so resolve it once per session and reuse it:
+
 ```bash
-"${CLAUDE_PLUGIN_ROOT}/skills/imagegen/scripts/codex-image.sh" \
+IMAGEGEN=$(ls "${CLAUDE_PLUGIN_ROOT:-/nonexistent}/skills/imagegen/scripts/codex-image.sh" \
+              "$HOME/.claude/skills/imagegen/scripts/codex-image.sh" \
+              "$PWD/.claude/skills/imagegen/scripts/codex-image.sh" 2>/dev/null | head -1)
+```
+
+Then:
+
+```bash
+"$IMAGEGEN" \
   --prompt "minimalist ceramic mug hero, product photography, soft studio light" \
   --out /absolute/path/hero.png
 ```
@@ -54,7 +65,7 @@ look at the image and check it against the request before handing it over.
 For long or multi-line prompts, use `--prompt-file` instead of fighting shell quoting:
 
 ```bash
-"${CLAUDE_PLUGIN_ROOT}/skills/imagegen/scripts/codex-image.sh" -f prompt.md -o hero.png
+"$IMAGEGEN" -f prompt.md -o hero.png
 ```
 
 If the file has ```` ``` ```` fences, the **first** block is used as the prompt (so a
