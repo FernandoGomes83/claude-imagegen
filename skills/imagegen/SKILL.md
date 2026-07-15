@@ -155,6 +155,48 @@ Constraints: <keep/avoid>
 Full taxonomy and more recipes live in the Codex skill itself:
 `~/.codex/skills/.system/imagegen/SKILL.md` and `references/sample-prompts.md`.
 
+## Reference images (`--ref`)
+
+Any image can be passed with `--ref` as visual guidance. It is repeatable. This is the
+answer to consistency, and it is worth **offering proactively**: if the user has an
+existing asset, a previous generation, a brand look, or a photo of a person, say so
+instead of waiting to be asked.
+
+Reach for it when:
+
+- **A series must match.** Second card in a set, next post in a feed, another sprite in
+  the same pack. Pass the earlier image and only describe the difference.
+- **A person must stay recognizable.** Pass their photo and ask for that person in a new
+  scene. Use `Use case: identity-preserve` and say to preserve face, hair, and build.
+- **A brand look must hold.** Pass an on-brand asset and let it carry palette and mood
+  that prose struggles to specify.
+- **The user is iterating.** Pass the previous result and change one thing.
+
+**Say what to keep, not just what to change.** A bare reference drifts. Name the
+invariants (background, palette, shapes, framing) and the single delta:
+
+```bash
+--ref fox.png --prompt "an owl sleeping curled up, in EXACTLY the same visual style as
+the reference: same flat minimalist illustration, same beige background, same warm
+palette, same soft shapes and grain. Only the animal changes. Square, no text."
+```
+
+With several references, label each by index in the prompt (`Image 1: style reference;
+Image 2: composition`), because the generator reads them positionally.
+
+Verified: a fox illustration used as reference produced an owl with the same background,
+palette, circular composition and grain. A portrait photo used as reference produced the
+same recognizable person in a new scene.
+
+Limits worth stating to the user:
+
+- Reference **guides**, it does not clone. It is not inpainting or a pixel-faithful edit.
+- **Negative constraints are hints, not contracts.** "No brand logos" or "no trademarked
+  characters" gets ignored when the model has a strong visual cliché for the subject (ask
+  for a person in Orlando and a famous castle shows up regardless). This is exactly why
+  the Read step is mandatory before handing anything over, and why it matters more when
+  the image is destined for anything public or commercial.
+
 ## Iterating
 
 Change **one thing at a time** and write to a new file. To vary on a previous result,
@@ -166,8 +208,8 @@ pass it with `--ref` and describe only the difference.
   is to generate on a flat chroma-key (`#00ff00`) and remove it with
   `~/.codex/skills/.system/imagegen/scripts/remove_chroma_key.py`. True native
   transparency would need the fallback CLI with `OPENAI_API_KEY`. Ask first.
-- **Editing a local image** through the built-in tool is limited. `--ref` is for
-  reference; pixel-faithful editing wants the fallback CLI.
+- **Editing a local image** through the built-in tool is limited. `--ref` guides style and
+  identity well (see above), but pixel-faithful editing and masks want the fallback CLI.
 - **Aspect ratio** is honored when asked for, but is **not a pixel-exact guarantee**:
   there is no size flag on the built-in tool. If the dimension is a hard requirement
   (e.g. an OG image at 1200×630), verify in the Read and resize afterwards.

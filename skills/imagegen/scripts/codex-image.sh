@@ -20,7 +20,8 @@ usage: codex-image.sh --prompt "image description" [--out /path/final.png] [opti
                         If the file contains ``` fences, the FIRST fenced block is used.
                         One of --prompt / --prompt-file is required.
   -o, --out PATH        Final file. Default: ./<slug>-<timestamp>.png
-      --ref FILE        Reference image (repeatable).
+      --ref FILE        Reference image for style/identity (repeatable). Say in the
+                        prompt what must stay the same, not just what changes.
       --log PATH        Where to write the event log. Default: a temp file.
       --keep-log        Keep the log even on success.
       --model MODEL     Codex model. Default: whatever your config.toml uses.
@@ -101,10 +102,13 @@ OUT="$OUT_DIR/$(basename "$OUT")"
 
 [ -e "$OUT" ] && die "file already exists, refusing to overwrite: $OUT"
 
+# mktemp templates must END with the X's: BSD mktemp does not accept a suffix
+# after them, and would silently create a file literally named ...-XXXXXX.log,
+# so concurrent runs would share one file.
 if [ -z "$LOG" ]; then
-  LOG=$(mktemp "${TMPDIR:-/tmp}/codex-image-XXXXXX.log")
+  LOG=$(mktemp "${TMPDIR:-/tmp}/codex-image-log-XXXXXX")
 fi
-MSG_FILE=$(mktemp "${TMPDIR:-/tmp}/codex-image-msg-XXXXXX.txt")
+MSG_FILE=$(mktemp "${TMPDIR:-/tmp}/codex-image-msg-XXXXXX")
 
 cleanup() {
   rm -f "$MSG_FILE"
@@ -134,10 +138,14 @@ Output requirements (mandatory):
 - Do not ask for confirmation; run to completion.
 - When done, reply with ONLY the absolute path of the saved file, nothing else."
 
-CODEX_ARGS=(exec --json --sandbox workspace-write --skip-git-repo-check
-            -C "$OUT_DIR" -o "$MSG_FILE")
-[ -n "$MODEL" ] && CODEX_ARGS+=(-m "$MODEL")
+# `-i/--image` is variadic (<FILE>...), so it swallows every following argument,
+# including the positional prompt. Keep the -i flags first: the next flag stops
+# each one, and the prompt stays safely at the end.
+CODEX_ARGS=(exec)
 for ref in ${REFS+"${REFS[@]}"}; do CODEX_ARGS+=(-i "$ref"); done
+CODEX_ARGS+=(--json --sandbox workspace-write --skip-git-repo-check
+             -C "$OUT_DIR" -o "$MSG_FILE")
+[ -n "$MODEL" ] && CODEX_ARGS+=(-m "$MODEL")
 
 set +e
 codex "${CODEX_ARGS[@]}" "$FULL_PROMPT" >"$LOG" 2>&1

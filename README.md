@@ -23,6 +23,7 @@ claude:  [asks 2 quick questions, generates, shows you the PNG]
 | **Real files** | PNGs on disk, exactly where you asked for them. |
 | **Text that works** | Renders legible text *inside* images, accented languages included. |
 | **Format control** | Ask for 16:9, 1080×1350, 4K. It honors it. |
+| **Consistency** | Feed a reference image and keep one visual identity across a series. |
 | **A skill that thinks** | Claude asks a couple of sharp questions first, instead of guessing. |
 
 Examples further down.
@@ -158,6 +159,49 @@ notes and alternatives in the same file.
 | `--ref` | Reference image for style/composition. Repeatable. |
 | `--model` | Override the Codex model. |
 | `--log` / `--keep-log` | Event log control. |
+
+---
+
+## Keeping a consistent look (reference images)
+
+One image is easy. A *series* that looks like it came from the same hand is the hard
+part. Pass any image with `--ref` and the generator uses it as visual guidance:
+
+```bash
+codex-image.sh --ref fox.png -o owl.png \
+  --prompt "an owl sleeping curled up, in EXACTLY the same visual style as the reference:
+            same flat minimalist illustration language, same beige background, same warm
+            palette, same soft shapes and grain. Only the animal changes. Square, no text."
+```
+
+| Reference | Result |
+|---|---|
+| ![](examples/fox.jpg) | ![](examples/owl.jpg) |
+
+Same background, same palette, same circular composition, same grain. Only the animal
+changed.
+
+**The trick is telling it what to keep.** A reference alone drifts. Spell out what stays
+(background, palette, shapes, framing) and what changes. Same idea works for people: pass
+a photo and ask for that person in a new scene, saying to preserve face and build.
+
+`--ref` is repeatable, so you can combine sources. When you pass more than one, name each
+role in the prompt, because the generator reads them by index:
+
+```bash
+codex-image.sh --ref style.png --ref layout.png -o out.png \
+  --prompt "Image 1: style reference. Image 2: composition reference. ..."
+```
+
+Ask in Claude and it works the same way: *"generate an owl in the same style as fox.png"*.
+
+Two things worth knowing:
+
+- **Reference guides, it doesn't clone.** It isn't inpainting or a pixel-faithful edit.
+  For that you want the fallback CLI with masks.
+- **Negative constraints are not a contract.** Asking for "no brand logos" or "no
+  trademarked characters" is a hint, not a guarantee. The model happily reaches for the
+  obvious landmark. Always look at the result before publishing it anywhere.
 
 ---
 
