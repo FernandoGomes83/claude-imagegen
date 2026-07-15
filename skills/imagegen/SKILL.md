@@ -82,8 +82,12 @@ Other options: `--ref <file>` (reference image, repeatable), `--model`, `--log`,
   images in a single prompt.
 - **Always `Read` the generated file** before saying it's done. The script guarantees the
   file exists and is a raster; only the Read guarantees the image is *right*.
-- **Show the user the result** and offer one targeted next step, rather than declaring
-  victory.
+- **Report the path and say what came out**, then offer one targeted next step, rather
+  than declaring victory. Your Read is how *you* check the image; it is not how the user
+  sees it, so describe what you saw.
+- **Don't `open` the file unless asked.** Popping a window uncontested is intrusive, it
+  gets worse with several images, and it breaks anywhere without a desktop. Hand over the
+  path. Open it when the user asks you to.
 - **No overwriting**: if `--out` exists, the script fails on purpose. Use a new name
   (`hero-v2.png`) to iterate.
 - On failure the script keeps the log and points to it on stderr. Read the log before
