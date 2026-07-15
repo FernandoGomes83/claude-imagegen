@@ -24,6 +24,7 @@ claude:  [asks 2 quick questions, generates, shows you the PNG]
 | **Text that works** | Renders legible text *inside* images, accented languages included. |
 | **Format control** | Ask for 16:9, 1080×1350, 4K. It honors it. |
 | **Consistency** | Feed a reference image and keep one visual identity across a series. |
+| **Transparent PNGs** | `--transparent` gives you a real alpha channel for logos and icons. |
 | **A skill that thinks** | Claude asks a couple of sharp questions first, instead of guessing. |
 
 Examples further down.
@@ -177,6 +178,8 @@ notes and alternatives in the same file.
 | `-f, --prompt-file` | Read the prompt from a file (`-` for stdin). |
 | `-o, --out` | Where to save. Defaults to `./<slug>-<timestamp>.png`. |
 | `--ref` | Reference image for style/composition. Repeatable. |
+| `--transparent` | Output a PNG with a real alpha channel. |
+| `--key-color` | Chroma key for `--transparent`. Default `#00ff00`. |
 | `--model` | Override the Codex model. |
 | `--log` / `--keep-log` | Event log control. |
 
@@ -265,9 +268,9 @@ trusts the exit code or the model's answer. The file is the source of truth.
 - **1 to 2 minutes per image.** It's not instant. Nothing to be done about that.
 - **Aspect ratio is honored, not guaranteed.** There's no size flag on the built-in tool.
   If you need exactly 1200×630, verify and resize.
-- **No transparent background** directly. Generate on a flat `#00ff00` chroma key and
-  remove it with the helper Codex ships:
-  `~/.codex/skills/.system/imagegen/scripts/remove_chroma_key.py`.
+- **Transparency** works through `--transparent`, which keys out a chroma background
+  locally. Great for logos, icons and product cutouts. Hair, fur, smoke and glass key
+  badly, and there it fails loudly instead of returning a bad cutout.
 - **Editing existing images** is limited. `--ref` guides style. It isn't inpainting.
 - **Text is the fragile part.** It's very good, but always look at the result. Long copy
   raises the risk.

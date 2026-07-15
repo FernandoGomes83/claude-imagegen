@@ -1,7 +1,8 @@
 {
   "name": "claude-imagegen",
   "owner": {
-    "name": "Fernando Gomes"
+    "name": "Fernando Gomes",
+    "url": "https://github.com/FernandoGomes83"
   },
   "description": "Image generation for Claude Code, powered by the Codex CLI.",
   "plugins": [

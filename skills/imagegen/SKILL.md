@@ -206,6 +206,27 @@ Limits worth stating to the user:
   show up, especially when the model has a strong visual cliché for the subject. One more
   reason the Read step is mandatory.
 
+## Transparent PNGs (`--transparent`)
+
+For a cutout with a real alpha channel, pass `--transparent`. Don't hand-roll the
+chroma-key dance; the flag does it:
+
+```bash
+"$IMAGEGEN" --transparent -p "a glossy red rocket, cartoon style, crisp edges" -o icon.png
+```
+
+It appends the chroma-key background instructions to your prompt, generates, keys the
+background out locally, verifies the result really has alpha, and deletes the
+intermediate. Describe only the subject: the background is the script's business.
+
+Use it for logos, icons, sprites, product cutouts, stickers, anything that has to sit on
+another background. Default key is `#00ff00`; pass `--key-color '#ff00ff'` when the
+subject is green.
+
+It needs the Codex chroma-key helper (ships with the Codex CLI) plus `uv` or Pillow. The
+script checks both **before** generating, so a missing dependency fails in a second
+rather than after a two-minute run.
+
 ## Iterating
 
 Change **one thing at a time** and write to a new file. To vary on a previous result,
@@ -213,10 +234,11 @@ pass it with `--ref` and describe only the difference.
 
 ## Known limits
 
-- **Transparent background** is not direct: the built-in tool exposes no alpha. The path
-  is to generate on a flat chroma-key (`#00ff00`) and remove it with
-  `~/.codex/skills/.system/imagegen/scripts/remove_chroma_key.py`. True native
-  transparency would need the fallback CLI with `OPENAI_API_KEY`. Ask first.
+- **Transparent background** is handled by `--transparent` (see above), which keys out a
+  chroma background locally because the built-in tool exposes no alpha. It suits clean,
+  opaque subjects. Hair, fur, smoke, glass and soft shadows key badly, and the script
+  fails loudly rather than handing back a fake cutout. Those cases need the Codex
+  fallback CLI with `OPENAI_API_KEY`, so ask the user first.
 - **Editing a local image** through the built-in tool is limited. `--ref` guides style and
   identity well (see above), but pixel-faithful editing and masks want the fallback CLI.
 - **Aspect ratio** is honored when asked for, but is **not a pixel-exact guarantee**:
