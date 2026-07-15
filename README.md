@@ -199,9 +199,9 @@ Two things worth knowing:
 
 - **Reference guides, it doesn't clone.** It isn't inpainting or a pixel-faithful edit.
   For that you want the fallback CLI with masks.
-- **Negative constraints are not a contract.** Asking for "no brand logos" or "no
-  trademarked characters" is a hint, not a guarantee. The model happily reaches for the
-  obvious landmark. Always look at the result before publishing it anywhere.
+- **Negative constraints are not a contract.** Whatever you put on the avoid list can
+  still show up, especially when the model has a strong visual cliché for the subject.
+  Look at what came out.
 
 ---
 
