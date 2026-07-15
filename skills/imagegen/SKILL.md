@@ -206,6 +206,26 @@ Limits worth stating to the user:
   show up, especially when the model has a strong visual cliché for the subject. One more
   reason the Read step is mandatory.
 
+## Editing an image (`--edit`)
+
+To change something in an existing image, pass it with `--edit` and describe **only the
+change**. The script tells the model to keep everything else, so the prompt stays short:
+
+```bash
+"$IMAGEGEN" --edit photo.png -p "replace the wood table with white marble" -o v2.png
+```
+
+Don't list the invariants yourself, and don't say "keep the rest the same". That is
+already in there. Just name the delta.
+
+Use `--edit` when the user wants *this image, but with X different*. Use `--ref` when they
+want a *new* image that looks like an existing one. They cannot be combined.
+
+Backgrounds, lighting, weather, materials, adding or removing an object: all fine. The
+untouched parts come back very close, though not byte-identical, since the model
+regenerates rather than patching. For a real photo of a person, or copy that must survive
+untouched, check the result carefully in the Read.
+
 ## Transparent PNGs (`--transparent`)
 
 For a cutout with a real alpha channel, pass `--transparent`. Don't hand-roll the

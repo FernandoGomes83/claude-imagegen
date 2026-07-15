@@ -178,6 +178,7 @@ notes and alternatives in the same file.
 | `-f, --prompt-file` | Read the prompt from a file (`-` for stdin). |
 | `-o, --out` | Where to save. Defaults to `./<slug>-<timestamp>.png`. |
 | `--ref` | Reference image for style/composition. Repeatable. |
+| `--edit` | Edit an existing image. Describe only the change. |
 | `--transparent` | Output a PNG with a real alpha channel. |
 | `--key-color` | Chroma key for `--transparent`. Default `#00ff00`. |
 | `--model` | Override the Codex model. |
@@ -225,6 +226,18 @@ Two things worth knowing:
 - **Negative constraints are not a contract.** Whatever you put on the avoid list can
   still show up, especially when the model has a strong visual cliché for the subject.
   Look at what came out.
+
+### Changing an existing image
+
+Pass it with `--edit` and describe only what changes. Everything else is kept for you, so
+you don't have to write "same cup, same angle, same light" every time:
+
+```bash
+codex-image.sh --edit photo.png -p "replace the wood table with white marble" -o v2.png
+```
+
+`--edit` is for *this image, with X different*. `--ref` is for a *new* image that looks
+like an existing one.
 
 ---
 
@@ -297,7 +310,9 @@ trusts the exit code or the model's answer. The file is the source of truth.
   If you need exactly 1200×630, verify and resize.
 - **Transparency is chroma-keyed, not native.** See above. Clean opaque subjects cut out
   well; hair, fur, smoke and glass don't.
-- **Editing existing images** is limited. `--ref` guides style. It isn't inpainting.
+- **Editing regenerates, it doesn't patch.** `--edit` brings the untouched parts back
+  very close, but not byte-identical. It's great for backgrounds, lighting and materials.
+  It is not masked inpainting.
 - **Text is the fragile part.** It's very good, but always look at the result. Long copy
   raises the risk.
 

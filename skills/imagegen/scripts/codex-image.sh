@@ -22,6 +22,8 @@ usage: codex-image.sh --prompt "image description" [--out /path/final.png] [opti
   -o, --out PATH        Final file. Default: ./<slug>-<timestamp>.png
       --ref FILE        Reference image for style/identity (repeatable). Say in the
                         prompt what must stay the same, not just what changes.
+      --edit FILE       Edit an existing image. Describe only the change; everything
+                        else is kept. Cannot be combined with --ref.
       --transparent     Produce a PNG with a real alpha channel. Generates the subject
                         on a flat chroma-key background and keys it out locally.
       --key-color HEX   Chroma key to use with --transparent. Default #00ff00. Use
@@ -46,6 +48,7 @@ KEEP_LOG=0
 MODEL=""
 TRANSPARENT=0
 KEY_COLOR="#00ff00"
+EDIT_FILE=""
 REFS=()
 
 while [ $# -gt 0 ]; do
@@ -54,6 +57,7 @@ while [ $# -gt 0 ]; do
     -f|--prompt-file) [ $# -ge 2 ] || die "--prompt-file requires a value"; PROMPT_FILE="$2"; shift 2 ;;
     -o|--out)    [ $# -ge 2 ] || die "--out requires a value";    OUT="$2";    shift 2 ;;
     --ref)       [ $# -ge 2 ] || die "--ref requires a value";    REFS+=("$2"); shift 2 ;;
+    --edit)      [ $# -ge 2 ] || die "--edit requires a value";   EDIT_FILE="$2"; shift 2 ;;
     --log)       [ $# -ge 2 ] || die "--log requires a value";    LOG="$2";    shift 2 ;;
     --model)     [ $# -ge 2 ] || die "--model requires a value";  MODEL="$2";  shift 2 ;;
     --keep-log)  KEEP_LOG=1; shift ;;
@@ -105,6 +109,13 @@ Update the Codex CLI, or drop --transparent."
   fi
 fi
 
+if [ -n "$EDIT_FILE" ]; then
+  [ ${#REFS[@]} -eq 0 ] || die "use --edit OR --ref, not both"
+  [ -f "$EDIT_FILE" ] || die "image to edit does not exist: $EDIT_FILE"
+  # The edit target rides in on the same -i channel as a reference.
+  REFS+=("$EDIT_FILE")
+fi
+
 for ref in ${REFS+"${REFS[@]}"}; do
   [ -f "$ref" ] || die "reference image does not exist: $ref"
 done
@@ -151,7 +162,18 @@ trap cleanup EXIT
 # preview-only and "renders it inline", which does not exist outside the TUI.
 # The run then exits 0 with an empty final message and no file anywhere.
 REF_BLOCK=""
-if [ ${#REFS[@]} -gt 0 ]; then
+if [ -n "$EDIT_FILE" ]; then
+  # Without this, the model treats the attachment as inspiration and returns a
+  # brand new picture instead of the same one with the requested change.
+  REF_BLOCK="
+The attached image is the EDIT TARGET, not a style reference.
+- This is an edit of that exact image, not a new picture inspired by it.
+- Apply ONLY the change described above. Everything else stays as it is:
+  subject, pose, position, scale, framing, camera angle, lens, lighting,
+  shadows, colors, materials and any text already in the image.
+- Reproduce the untouched parts as faithfully as you can.
+- Use view_image on the attachment first if that helps you match it."
+elif [ ${#REFS[@]} -gt 0 ]; then
   REF_BLOCK=$'\nReference images are attached to this prompt: use them for style/composition/subject guidance.'
 fi
 
