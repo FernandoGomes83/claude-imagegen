@@ -125,14 +125,17 @@ you versioning, updates, and uninstall for free.
 
 ### Step 4: use it
 
-Open Claude Code and just ask:
+Open Claude Code and just ask, in your own words:
 
 ```
 generate a cover image for my blog post about slow mornings
 ```
 
-Claude picks up the skill, asks a question or two if the request is thin, generates, and
-shows you the result. Each image takes **1 to 2 minutes**.
+That's the whole interface. Claude picks up the skill, asks a question or two if the
+request is thin, runs the generator, and shows you the file. You never type a flag. There
+is a CLI underneath if you want one, but it's an option, not the front door.
+
+Each image takes **1 to 2 minutes**.
 
 ### Step 5: if something breaks
 
@@ -142,12 +145,73 @@ codex doctor      # diagnoses your Codex install, auth, and runtime
 
 Most problems are Step 2 not actually finishing. Run `codex login status` and confirm.
 
+
 ---
 
-## Using it without Claude
+## What you can ask for
 
-The skill is a thin wrapper over a script, and the script is useful on its own. For that
-you do want a clone:
+You talk to Claude. It picks the skill, runs the generator, and shows you the file. You
+never type a command unless you want to.
+
+### A series that looks like one series
+
+> *"generate an owl in the same style as fox.png"*
+
+| Reference | Result |
+|---|---|
+| ![](examples/fox.jpg) | ![](examples/owl.jpg) |
+
+Same background, palette, composition and grain. Only the animal changed. It works for
+people too: point at a photo and ask for that person somewhere else.
+
+The one thing worth saying out loud is **what must stay the same**. A reference on its own
+drifts; "same background, same palette, only the animal changes" doesn't.
+
+### This image, but with one thing different
+
+> *"take mug.png and replace the wood table with white marble"*
+
+| Before | After |
+|---|---|
+| ![](examples/edit-before.jpg) | ![](examples/edit-after.jpg) |
+
+The cup, the crema, the handle, the wall, the angle and the light all survive. Only the
+table changed, from a six-word request.
+
+Don't bother spelling out what to preserve, it's already handled. Doing it by hand
+actually makes it worse: the same edit with a written-out paragraph of invariants left
+5.4% of the cup altered, against 1.7% for the short version.
+
+### A cutout with no background
+
+> *"make me a rocket icon with a transparent background"*
+
+| What gets generated | What you get back |
+|---|---|
+| ![](examples/transparent-before.jpg) | ![](examples/transparent-after.png) |
+| Flat `#00ff00` background, added to your prompt for you | Real alpha channel, antialiased edges, no green fringe |
+
+Describe the subject; the chroma-key dance is handled and the intermediate is cleaned up.
+Good for logos, icons, sprites and product cutouts. Hair, fur, smoke and glass key badly,
+and there it fails loudly instead of handing back a bad cutout.
+
+Needs the chroma-key helper that ships with the Codex CLI, plus either `uv` (it fetches
+Pillow on the fly) or Pillow already installed. Both are checked before generating, so a
+missing one costs a second instead of two minutes.
+
+### Text inside the image
+
+> *"a quote card that says 'A graça de Deus não é mérito', elegant serif, centered"*
+
+Quote the words exactly and it renders them, accents included. Long copy is where it gets
+fragile, so look at what came out.
+
+---
+
+## The CLI underneath
+
+The skill is a thin wrapper over one script, and the script stands on its own. Clone the
+repo if you want it:
 
 ```bash
 git clone https://github.com/FernandoGomes83/claude-imagegen.git
@@ -164,19 +228,10 @@ It prints the absolute path to stdout and nothing else, so it composes:
 open "$(./skills/imagegen/scripts/codex-image.sh -p 'a blue mug' -o /tmp/mug.png)"
 ```
 
-Long prompt? Put it in a file:
-
-```bash
-./skills/imagegen/scripts/codex-image.sh -f prompt.md -o out.png
-```
-
-If the file has ``` fences, the first fenced block is used as the prompt, so you can keep
-notes and alternatives in the same file.
-
 | Flag | |
 |---|---|
 | `-p, --prompt` | The image description. |
-| `-f, --prompt-file` | Read the prompt from a file (`-` for stdin). |
+| `-f, --prompt-file` | Read the prompt from a file (`-` for stdin). First ``` block wins. |
 | `-o, --out` | Where to save. Defaults to `./<slug>-<timestamp>.png`. |
 | `--ref` | Reference image for style/composition. Repeatable. |
 | `--edit` | Edit an existing image. Describe only the change. |
@@ -185,100 +240,6 @@ notes and alternatives in the same file.
 | `--model` | Override the Codex model. |
 | `--log` / `--keep-log` | Event log control. |
 
----
-
-## Keeping a consistent look (reference images)
-
-One image is easy. A *series* that looks like it came from the same hand is the hard
-part. Pass any image with `--ref` and the generator uses it as visual guidance:
-
-```bash
-codex-image.sh --ref fox.png -o owl.png \
-  --prompt "an owl sleeping curled up, in EXACTLY the same visual style as the reference:
-            same flat minimalist illustration language, same beige background, same warm
-            palette, same soft shapes and grain. Only the animal changes. Square, no text."
-```
-
-| Reference | Result |
-|---|---|
-| ![](examples/fox.jpg) | ![](examples/owl.jpg) |
-
-Same background, same palette, same circular composition, same grain. Only the animal
-changed.
-
-**The trick is telling it what to keep.** A reference alone drifts. Spell out what stays
-(background, palette, shapes, framing) and what changes. Same idea works for people: pass
-a photo and ask for that person in a new scene, saying to preserve face and build.
-
-`--ref` is repeatable, so you can combine sources. When you pass more than one, name each
-role in the prompt, because the generator reads them by index:
-
-```bash
-codex-image.sh --ref style.png --ref layout.png -o out.png \
-  --prompt "Image 1: style reference. Image 2: composition reference. ..."
-```
-
-Ask in Claude and it works the same way: *"generate an owl in the same style as fox.png"*.
-
-Two things worth knowing:
-
-- **Reference guides, it doesn't clone.** It isn't inpainting or a pixel-faithful edit.
-  For that you want the fallback CLI with masks.
-- **Negative constraints are not a contract.** Whatever you put on the avoid list can
-  still show up, especially when the model has a strong visual cliché for the subject.
-  Look at what came out.
-
-### Changing an existing image
-
-Pass it with `--edit` and describe only what changes. Everything else is kept for you, so
-you don't have to write "same cup, same angle, same light" every time:
-
-```bash
-codex-image.sh --edit mug.png -p "replace the wood table with white marble" -o v2.png
-```
-
-| Before | After |
-|---|---|
-| ![](examples/edit-before.jpg) | ![](examples/edit-after.jpg) |
-
-That was the whole prompt: six words. The cup, the crema, the handle, the wall, the angle
-and the light all survive; only the table changed.
-
-Writing the invariants yourself makes it worse, not better. The same edit with a
-hand-written paragraph of "keep the cup identical, same glaze, same shadow…" left 5.4% of
-the cup altered. The six-word version above left 1.7%.
-
-`--edit` is for *this image, with X different*. `--ref` is for a *new* image that looks
-like an existing one.
-
----
-
-## Transparent cutouts
-
-`gpt-image-2` has no alpha control, so `--transparent` gets there in two steps: it
-generates the subject over a flat chroma key, then keys that colour out locally.
-
-```bash
-codex-image.sh --transparent -p "a glossy 3D cartoon red rocket, crisp edges" -o icon.png
-```
-
-| What gets generated | What you get back |
-|---|---|
-| ![](examples/transparent-before.jpg) | ![](examples/transparent-after.png) |
-| Flat `#00ff00` background, added to your prompt for you | Real alpha channel, antialiased edges, no green fringe |
-
-Describe the subject and nothing else. The background is the script's job: it adds the
-chroma-key rules, generates, keys it out, checks the alpha is actually there, and deletes
-the intermediate. Pass `--key-color '#ff00ff'` when your subject is green.
-
-Good for logos, icons, sprites, stickers and product cutouts. Hair, fur, smoke and glass
-key badly, and there the script fails loudly rather than returning a bad cutout.
-
-Needs the chroma-key helper that ships with the Codex CLI, plus either `uv` (it fetches
-Pillow on the fly) or Pillow already installed. Both are checked before generating, so a
-missing one costs you a second instead of two minutes.
-
----
 
 ## Examples
 
