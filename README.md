@@ -105,24 +105,6 @@ so it never depends on a folder you might move or delete.
 Later on: `/plugin marketplace update claude-imagegen` to pull updates, and
 `/plugin uninstall imagegen@claude-imagegen` to remove it.
 
-<details>
-<summary>Not using Claude Code? Install it as a plain skill instead.</summary>
-
-The skill also installs through the [skills.sh](https://www.skills.sh) CLI, which works
-across several agents:
-
-```bash
-npx skills add FernandoGomes83/claude-imagegen
-```
-
-It copies the skill into your agent's skills directory and pins it in a
-`skills-lock.json`. Update with `npx skills update`, remove with `npx skills remove`.
-
-For Claude Code specifically, prefer the plugin above: it is the native path and it gets
-you versioning, updates, and uninstall for free.
-
-</details>
-
 ### Step 4: use it
 
 Open Claude Code and just ask, in your own words:
@@ -248,9 +230,9 @@ trusts the exit code or the model's answer. The file is the source of truth.
   If you need exactly 1200×630, verify and resize.
 - **Transparency is chroma-keyed, not native.** See above. Clean opaque subjects cut out
   well; hair, fur, smoke and glass don't.
-- **Editing regenerates, it doesn't patch.** `--edit` brings the untouched parts back
-  very close, but not byte-identical. It's great for backgrounds, lighting and materials.
-  It is not masked inpainting.
+- **Editing regenerates, it doesn't patch.** The untouched parts come back very close, but
+  not byte-identical. Great for backgrounds, lighting and materials. It is not masked
+  inpainting.
 - **Text is the fragile part.** It's very good, but always look at the result. Long copy
   raises the risk.
 

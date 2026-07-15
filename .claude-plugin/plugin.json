@@ -1,7 +1,7 @@
 {
   "name": "imagegen",
   "description": "Image generation for Claude Code. Delegates to the Codex CLI's built-in image_gen tool, so it runs on your existing ChatGPT plan with no API key and no per-image billing.",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "author": {
     "name": "Fernando Gomes"
   },
