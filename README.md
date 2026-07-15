@@ -88,22 +88,20 @@ Verify:
 codex login status
 ```
 
-### Step 3: install this skill
+### Step 3: install the plugin
 
-```bash
-git clone https://github.com/FernandoGomes83/claude-imagegen.git
-cd claude-imagegen
-./install.sh
+Inside Claude Code, run these two:
+
+```
+/plugin marketplace add FernandoGomes83/claude-imagegen
+/plugin install imagegen@claude-imagegen
 ```
 
-That symlinks the skill into `~/.claude/skills/imagegen`. To undo it, delete that symlink.
-Nothing else is touched.
+Nothing to clone, nothing to symlink. Claude Code copies the plugin into its own cache,
+so it never depends on a folder you might move or delete.
 
-Prefer to do it by hand?
-
-```bash
-ln -s "$PWD/skills/imagegen" ~/.claude/skills/imagegen
-```
+Later on: `/plugin marketplace update claude-imagegen` to pull updates, and
+`/plugin uninstall imagegen@claude-imagegen` to remove it.
 
 ### Step 4: use it
 
@@ -128,9 +126,13 @@ Most problems are Step 2 not actually finishing. Run `codex login status` and co
 
 ## Using it without Claude
 
-The skill is a thin wrapper over a script. The script is useful on its own:
+The skill is a thin wrapper over a script, and the script is useful on its own. For that
+you do want a clone:
 
 ```bash
+git clone https://github.com/FernandoGomes83/claude-imagegen.git
+cd claude-imagegen
+
 ./skills/imagegen/scripts/codex-image.sh \
   --prompt "red fox sleeping curled up, flat minimalist illustration, beige background" \
   --out ~/Desktop/fox.png

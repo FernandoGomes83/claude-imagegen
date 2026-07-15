@@ -1,0 +1,21 @@
+{
+  "name": "claude-imagegen",
+  "owner": {
+    "name": "Fernando Gomes"
+  },
+  "description": "Image generation for Claude Code, powered by the Codex CLI.",
+  "plugins": [
+    {
+      "name": "imagegen",
+      "source": "./",
+      "description": "Generate images from Claude Code by delegating to the Codex CLI's built-in image_gen tool. No API key, no per-image billing.",
+      "category": "productivity",
+      "tags": [
+        "image-generation",
+        "codex",
+        "assets",
+        "design"
+      ]
+    }
+  ]
+}

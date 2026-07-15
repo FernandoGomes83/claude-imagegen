@@ -1,0 +1,20 @@
+{
+  "name": "imagegen",
+  "description": "Image generation for Claude Code. Delegates to the Codex CLI's built-in image_gen tool, so it runs on your existing ChatGPT plan with no API key and no per-image billing.",
+  "version": "0.1.0",
+  "author": {
+    "name": "Fernando Gomes"
+  },
+  "homepage": "https://github.com/FernandoGomes83/claude-imagegen",
+  "repository": "https://github.com/FernandoGomes83/claude-imagegen",
+  "license": "MIT",
+  "keywords": [
+    "image-generation",
+    "images",
+    "codex",
+    "openai",
+    "illustration",
+    "mockup",
+    "assets"
+  ]
+}

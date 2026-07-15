@@ -43,7 +43,7 @@ first pass and let the image itself drive the conversation.
 Always in the background. Each image takes **1-2 minutes**.
 
 ```bash
-~/.claude/skills/imagegen/scripts/codex-image.sh \
+"${CLAUDE_PLUGIN_ROOT}/skills/imagegen/scripts/codex-image.sh" \
   --prompt "minimalist ceramic mug hero, product photography, soft studio light" \
   --out /absolute/path/hero.png
 ```
@@ -54,7 +54,7 @@ look at the image and check it against the request before handing it over.
 For long or multi-line prompts, use `--prompt-file` instead of fighting shell quoting:
 
 ```bash
-~/.claude/skills/imagegen/scripts/codex-image.sh -f prompt.md -o hero.png
+"${CLAUDE_PLUGIN_ROOT}/skills/imagegen/scripts/codex-image.sh" -f prompt.md -o hero.png
 ```
 
 If the file has ```` ``` ```` fences, the **first** block is used as the prompt (so a
