@@ -23,9 +23,9 @@ claude:  [asks 2 quick questions, generates, shows you the PNG]
 | **Real files** | PNGs on disk, exactly where you asked for them. |
 | **Text that works** | Renders legible text *inside* images, accented languages included. |
 | **Format control** | Ask for 16:9, 1080×1350, 4K. It honors it. |
-| **Consistency** | Feed a reference image and keep one visual identity across a series. |
-| **Editing** | `--edit` changes one thing in an image you already have. |
-| **Transparent PNGs** | `--transparent` gives you a real alpha channel for logos and icons. |
+| **Consistency** | Point at an image and keep one visual identity across a series. |
+| **Editing** | Change one thing in an image you already have. |
+| **Transparent PNGs** | Real alpha channel, for logos and icons. |
 | **A skill that thinks** | Claude asks a couple of sharp questions first, instead of guessing. |
 
 Examples further down.
@@ -132,8 +132,7 @@ generate a cover image for my blog post about slow mornings
 ```
 
 That's the whole interface. Claude picks up the skill, asks a question or two if the
-request is thin, runs the generator, and shows you the file. You never type a flag. There
-is a CLI underneath if you want one, but it's an option, not the front door.
+request is thin, generates, and shows you the file.
 
 Each image takes **1 to 2 minutes**.
 
@@ -150,8 +149,7 @@ Most problems are Step 2 not actually finishing. Run `codex login status` and co
 
 ## What you can ask for
 
-You talk to Claude. It picks the skill, runs the generator, and shows you the file. You
-never type a command unless you want to.
+All of it in plain language. Claude works out the rest.
 
 ### A series that looks like one series
 
@@ -206,39 +204,6 @@ missing one costs a second instead of two minutes.
 Quote the words exactly and it renders them, accents included. Long copy is where it gets
 fragile, so look at what came out.
 
----
-
-## The CLI underneath
-
-The skill is a thin wrapper over one script, and the script stands on its own. Clone the
-repo if you want it:
-
-```bash
-git clone https://github.com/FernandoGomes83/claude-imagegen.git
-cd claude-imagegen
-
-./skills/imagegen/scripts/codex-image.sh \
-  --prompt "red fox sleeping curled up, flat minimalist illustration, beige background" \
-  --out ~/Desktop/fox.png
-```
-
-It prints the absolute path to stdout and nothing else, so it composes:
-
-```bash
-open "$(./skills/imagegen/scripts/codex-image.sh -p 'a blue mug' -o /tmp/mug.png)"
-```
-
-| Flag | |
-|---|---|
-| `-p, --prompt` | The image description. |
-| `-f, --prompt-file` | Read the prompt from a file (`-` for stdin). First ``` block wins. |
-| `-o, --out` | Where to save. Defaults to `./<slug>-<timestamp>.png`. |
-| `--ref` | Reference image for style/composition. Repeatable. |
-| `--edit` | Edit an existing image. Describe only the change. |
-| `--transparent` | Output a PNG with a real alpha channel. |
-| `--key-color` | Chroma key for `--transparent`. Default `#00ff00`. |
-| `--model` | Override the Codex model. |
-| `--log` / `--keep-log` | Event log control. |
 
 
 ## Examples
