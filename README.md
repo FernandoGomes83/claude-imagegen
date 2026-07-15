@@ -103,6 +103,25 @@ so it never depends on a folder you might move or delete.
 Later on: `/plugin marketplace update claude-imagegen` to pull updates, and
 `/plugin uninstall imagegen@claude-imagegen` to remove it.
 
+<details>
+<summary>Not using Claude Code? Install it as a plain skill instead.</summary>
+
+The skill also installs through the [skills.sh](https://www.skills.sh) CLI, which works
+across several agents:
+
+```bash
+npx skills add FernandoGomes83/claude-imagegen --copy
+```
+
+Pass `--copy`, otherwise it symlinks the skill into your agent directory and your install
+stays tied to wherever the CLI put the clone. Update with `npx skills update`, remove with
+`npx skills remove`.
+
+For Claude Code specifically, prefer the plugin above: it is the native path and it gets
+you versioning, updates, and uninstall for free.
+
+</details>
+
 ### Step 4: use it
 
 Open Claude Code and just ask:
