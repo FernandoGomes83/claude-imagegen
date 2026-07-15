@@ -228,6 +228,33 @@ Two things worth knowing:
 
 ---
 
+## Transparent cutouts
+
+`gpt-image-2` has no alpha control, so `--transparent` gets there in two steps: it
+generates the subject over a flat chroma key, then keys that colour out locally.
+
+```bash
+codex-image.sh --transparent -p "a glossy 3D cartoon red rocket, crisp edges" -o icon.png
+```
+
+| What gets generated | What you get back |
+|---|---|
+| ![](examples/transparent-before.jpg) | ![](examples/transparent-after.png) |
+| Flat `#00ff00` background, added to your prompt for you | Real alpha channel, antialiased edges, no green fringe |
+
+Describe the subject and nothing else. The background is the script's job: it adds the
+chroma-key rules, generates, keys it out, checks the alpha is actually there, and deletes
+the intermediate. Pass `--key-color '#ff00ff'` when your subject is green.
+
+Good for logos, icons, sprites, stickers and product cutouts. Hair, fur, smoke and glass
+key badly, and there the script fails loudly rather than returning a bad cutout.
+
+Needs the chroma-key helper that ships with the Codex CLI, plus either `uv` (it fetches
+Pillow on the fly) or Pillow already installed. Both are checked before generating, so a
+missing one costs you a second instead of two minutes.
+
+---
+
 ## Examples
 
 All generated through this skill, unretouched, first try.
@@ -268,9 +295,8 @@ trusts the exit code or the model's answer. The file is the source of truth.
 - **1 to 2 minutes per image.** It's not instant. Nothing to be done about that.
 - **Aspect ratio is honored, not guaranteed.** There's no size flag on the built-in tool.
   If you need exactly 1200×630, verify and resize.
-- **Transparency** works through `--transparent`, which keys out a chroma background
-  locally. Great for logos, icons and product cutouts. Hair, fur, smoke and glass key
-  badly, and there it fails loudly instead of returning a bad cutout.
+- **Transparency is chroma-keyed, not native.** See above. Clean opaque subjects cut out
+  well; hair, fur, smoke and glass don't.
 - **Editing existing images** is limited. `--ref` guides style. It isn't inpainting.
 - **Text is the fragile part.** It's very good, but always look at the result. Long copy
   raises the risk.
