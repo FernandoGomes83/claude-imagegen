@@ -191,11 +191,9 @@ same recognizable person in a new scene.
 Limits worth stating to the user:
 
 - Reference **guides**, it does not clone. It is not inpainting or a pixel-faithful edit.
-- **Negative constraints are hints, not contracts.** "No brand logos" or "no trademarked
-  characters" gets ignored when the model has a strong visual cliché for the subject (ask
-  for a person in Orlando and a famous castle shows up regardless). This is exactly why
-  the Read step is mandatory before handing anything over, and why it matters more when
-  the image is destined for anything public or commercial.
+- **Negative constraints are hints, not contracts.** "No brand logos" can be ignored when
+  the model has a strong visual cliché for the subject. One more reason the Read step is
+  mandatory, especially for anything public or commercial.
 
 ## Iterating
 
