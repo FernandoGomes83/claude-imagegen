@@ -42,19 +42,13 @@ first pass and let the image itself drive the conversation.
 
 Always in the background. Each image takes **1-2 minutes**.
 
-The generator lives beside this file, at `scripts/codex-image.sh`. Where that lands
-depends on how the skill was installed, so resolve it once per session and reuse it:
+The generator lives beside this file, at `scripts/codex-image.sh`. Claude Code replaces
+`${CLAUDE_SKILL_DIR}` with this skill's folder when it loads the skill, so call the script by
+that path in every command. Don't keep it in a shell variable: variables don't survive from
+one Bash call to the next.
 
 ```bash
-IMAGEGEN=$(ls "${CLAUDE_PLUGIN_ROOT:-/nonexistent}/skills/imagegen/scripts/codex-image.sh" \
-              "$HOME/.claude/skills/imagegen/scripts/codex-image.sh" \
-              "$PWD/.claude/skills/imagegen/scripts/codex-image.sh" 2>/dev/null | head -1)
-```
-
-Then:
-
-```bash
-"$IMAGEGEN" \
+"${CLAUDE_SKILL_DIR}/scripts/codex-image.sh" \
   --prompt "minimalist ceramic mug hero, product photography, soft studio light" \
   --out /absolute/path/hero.png
 ```
@@ -65,7 +59,7 @@ look at the image and check it against the request before handing it over.
 For long or multi-line prompts, use `--prompt-file` instead of fighting shell quoting:
 
 ```bash
-"$IMAGEGEN" -f prompt.md -o hero.png
+"${CLAUDE_SKILL_DIR}/scripts/codex-image.sh" -f prompt.md -o hero.png
 ```
 
 If the file has ```` ``` ```` fences, the **first** block is used as the prompt (so a
@@ -95,7 +89,7 @@ Other options: `--ref <file>` (reference image, repeatable), `--model`, `--log`,
 
 ## Writing the prompt
 
-The underlying model (`gpt-image-2`) is **very capable**: it handles long detailed specs,
+The underlying model (Codex's built-in image model, `gpt-image-2` as of October 2026) is **very capable**: it handles long detailed specs,
 renders legible text inside the image, respects format and composition, and follows
 negative constraints. **Don't skimp on the prompt.** A vague prompt yields a generic
 image. The waste is asking for too little, not too much.
@@ -122,7 +116,7 @@ Ask for it in the prompt. **It works.** Observed: a request framed as "product p
 came back 1536×1024 landscape on its own, while illustrations with no format specified
 came back square. A prompt asking for "3:4 (1080x1350)" returned exactly 1080×1350.
 
-Say "landscape 16:9", "portrait 2:3", "square", "4K landscape". Sizes `gpt-image-2`
+Say "landscape 16:9", "portrait 2:3", "square", "4K landscape". Sizes the model
 handles well: `1024x1024`, `1536x1024`, `1024x1536`, `2048x2048`, `2048x1152`,
 `3840x2160` (4K landscape), `2160x3840` (4K portrait).
 
@@ -130,11 +124,9 @@ It is not a pixel-exact contract. **Confirm the dimensions in the Read** if they
 
 ### Text inside the image
 
-The model renders real text, **including accented Latin scripts**. Verified in Brazilian
-Portuguese: "A graça de Deus não é mérito — é presença, perdão e compaixão." came back
-with every cedilla, tilde and acute accent correct, em dash included, first try. A
-handwritten-notebook layout with 8 separate strings, dotted leaders and thousand
-separators (`US$ 1.337`) also came back clean. Don't dumb down copy out of fear.
+The model renders real text, **including accented Latin scripts**: tests in Brazilian
+Portuguese came back right on the first try (evidence in `references/prompts.md`). Don't
+dumb down copy out of fear.
 
 Still, be precise:
 
@@ -146,29 +138,11 @@ Still, be precise:
 - **Always check the text in the Read.** Text is the most fragile part and the easiest
   to miss. The longer the copy, the higher the risk.
 
-### Optional schema
+### Complex requests and recipes
 
-For complex requests, the labeled schema the underlying skill already uses works well:
-
-```text
-Use case: <slug>          # photorealistic-natural, product-mockup, ui-mockup,
-                          # infographic-diagram, ads-marketing, logo-brand,
-                          # illustration-story, stylized-concept, historical-scene...
-Asset type: <where it will be used>
-Primary request: <the main ask>
-Scene/backdrop: <environment>
-Subject: <subject>
-Style/medium: <photo/illustration/3D>
-Composition/framing: <framing and format>
-Lighting/mood: <light and mood>
-Color palette: <palette>
-Materials/textures: <surfaces>
-Text (verbatim): "<exact text>"
-Constraints: <keep/avoid>
-```
-
-Full taxonomy and more recipes live in the Codex skill itself:
-`~/.codex/skills/.system/imagegen/SKILL.md` and `references/sample-prompts.md`.
+For complex requests, use the labeled schema in `references/prompts.md`. It also has the
+recipe for **landing pages** (one image per section, one palette) and the pointers to the
+Codex skill's full taxonomy.
 
 ## Reference images (`--ref`)
 
@@ -183,6 +157,8 @@ Reach for it when:
   the same pack. Pass the earlier image and only describe the difference.
 - **A person must stay recognizable.** Pass their photo and ask for that person in a new
   scene. Use `Use case: identity-preserve` and say to preserve face, hair, and build.
+  If the photo shows someone other than the user, confirm first that they agreed: the
+  image goes to OpenAI through Codex.
 - **A brand look must hold.** Pass an on-brand asset and let it carry palette and mood
   that prose struggles to specify.
 - **The user is iterating.** Pass the previous result and change one thing.
@@ -199,10 +175,6 @@ palette, same soft shapes and grain. Only the animal changes. Square, no text."
 With several references, label each by index in the prompt (`Image 1: style reference;
 Image 2: composition`), because the generator reads them positionally.
 
-Verified: a fox illustration used as reference produced an owl with the same background,
-palette, circular composition and grain. A portrait photo used as reference produced the
-same recognizable person in a new scene.
-
 Limits worth stating to the user:
 
 - Reference **guides**, it does not clone. It is not inpainting or a pixel-faithful edit.
@@ -216,7 +188,7 @@ To change something in an existing image, pass it with `--edit` and describe **o
 change**. The script tells the model to keep everything else, so the prompt stays short:
 
 ```bash
-"$IMAGEGEN" --edit photo.png -p "replace the wood table with white marble" -o v2.png
+"${CLAUDE_SKILL_DIR}/scripts/codex-image.sh" --edit photo.png -p "replace the wood table with white marble" -o v2.png
 ```
 
 Don't list the invariants yourself, and don't say "keep the rest the same". That is
@@ -236,7 +208,7 @@ For a cutout with a real alpha channel, pass `--transparent`. Don't hand-roll th
 chroma-key dance; the flag does it:
 
 ```bash
-"$IMAGEGEN" --transparent -p "a glossy red rocket, cartoon style, crisp edges" -o icon.png
+"${CLAUDE_SKILL_DIR}/scripts/codex-image.sh" --transparent -p "a glossy red rocket, cartoon style, crisp edges" -o icon.png
 ```
 
 It appends the chroma-key background instructions to your prompt, generates, keys the
